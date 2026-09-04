@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>键盘打字训练 · 高级UI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f5f7fc;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .app-card {
+      max-width: 860px;
+      width: 100%;
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border-radius: 48px;
+      box-shadow: 0 30px 60px -20px rgba(0, 20, 40, 0.25), 0 8px 28px rgba(0, 0, 0, 0.04);
+      padding: 36px 40px 44px;
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      transition: all 0.2s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* 头部 */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      flex-wrap: wrap;
+      gap: 18px;
+    }
+
+    .logo-area {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .logo-icon {
+      width: 44px;
+      height: 44px;
+      background: #1e293b;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 6px 12px -6px rgba(0,0,0,0.2);
+    }
+
+    .logo-icon svg {
+      width: 28px;
+      height: 28px;
+      fill: none;
+      stroke: #f8fafc;
+      stroke-width: 2;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .title {
+      font-size: 26px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: #0f172a;
+      background: linear-gradient(145deg, #0f172a 0%, #1e293b 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .title span {
+      font-weight: 400;
+      color: #64748b;
+      -webkit-text-fill-color: #64748b;
+      background: none;
+    }
+
+    .header-controls {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .mode-selector {
+      display: flex;
+      gap: 6px;
+      background: rgba(226, 232, 240, 0.6);
+      padding: 6px;
+      border-radius: 40px;
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255,255,255,0.5);
+    }
+
+    .mode-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      border-radius: 30px;
+      border: none;
+      background: transparent;
+      font-size: 15px;
+      font-weight: 500;
+      color: #334155;
+      cursor: pointer;
+      transition: 0.2s;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.3px;
+    }
+
+    .mode-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      stroke-width: 1.8;
+      fill: none;
+    }
+
+    .mode-btn.active {
+      background: #ffffff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04), 0 0 0 1px rgba(148, 163, 184, 0.2);
+      color: #0f172a;
+      font-weight: 600;
+    }
+
+    .mode-btn:hover:not(.active) {
+      background: rgba(255,255,255,0.5);
+      color: #0f172a;
+    }
+
+    .timer-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      border-radius: 40px;
+      border: 1px solid rgba(148, 163, 184, 0.3);
+      background: rgba(255,255,255,0.5);
+      font-size: 15px;
+      font-weight: 600;
+      color: #1e293b;
+      cursor: pointer;
+      transition: 0.2s;
+      font-family: 'Inter', sans-serif;
+      backdrop-filter: blur(4px);
+    }
+
+    .timer-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .timer-btn:hover {
+      background: rgba(255,255,255,0.8);
+      border-color: #94a3b8;
+    }
+
+    .timer-display {
+      font-size: 24px;
+      font-weight: 700;
+      color: #0f172a;
+      letter-spacing: 0.5px;
+      min-width: 80px;
+      text-align: center;
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* 主练习区 */
+    .practice-area {
+      background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      border-radius: 32px;
+      padding: 28px 26px 32px;
+      border: 1px solid rgba(255,255,255,0.7);
+      box-shadow: 0 12px 24px -12px rgba(0,0,0,0.06);
+      margin-top: 4px;
+    }
+
+    .display-text {
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 28px 24px 20px;
+      margin-bottom: 28px;
+      box-shadow: inset 0 2px 6px rgba(0,0,0,0.02), 0 6px 12px -8px rgba(0,0,0,0.05);
+      border: 1px solid #eef2f6;
+      min-height: 140px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .word-display {
+      font-size: 38px;
+      font-weight: 600;
+      line-height: 1.4;
+      color: #0f172a;
+      letter-spacing: 1px;
+      font-family: 'Inter', monospace;
+      transition: all 0.2s;
+      word-break: break-word;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .word-display .char-correct {
+      color: #16a34a;
+    }
+    .word-display .char-wrong {
+      color: #f97316;
+    }
+    .word-display .char-pending {
+      color: #0f172a;
+    }
+
+    .hint-row {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-top: 8px;
+      min-height: 40px;
+    }
+
+    .hint-key {
+      background: #fef9c3;
+      color: #854d0e;
+      padding: 4px 14px;
+      border-radius: 12px;
+      font-size: 20px;
+      font-weight: 700;
+      font-family: 'Inter', monospace;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      border: 1px solid #fde68a;
+      transition: all 0.15s;
+      display: inline-block;
+    }
+
+    .hint-key.dim {
+      opacity: 0.3;
+      transform: scale(0.9);
+    }
+
+    .hint-key.active-hint {
+      background: #fbbf24;
+      border-color: #d97706;
+      transform: scale(1.05);
+      box-shadow: 0 4px 12px rgba(251, 191, 36, 0.3);
+    }
+
+    .display-text .hint-placeholder {
+      color: #94a3b8;
+      font-weight: 400;
+      font-size: 18px;
+    }
+
+    /* 礼花 */
+    .confetti-container {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      overflow: hidden;
+      border-radius: 24px;
+    }
+    .confetti-piece {
+      position: absolute;
+      width: 12px;
+      height: 12px;
+      border-radius: 2px;
+      animation: confettiFall 0.9s ease-out forwards;
+    }
+    @keyframes confettiFall {
+      0% { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+      100% { opacity: 0; transform: translateY(260px) rotate(720deg) scale(0.3); }
+    }
+
+    .word-correct {
+      animation: popGreen 0.5s ease forwards;
+    }
+    .word-wrong {
+      animation: shake 0.4s ease;
+    }
+    @keyframes popGreen {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.25); opacity: 1; }
+      100% { transform: scale(1.2); opacity: 0; }
+    }
+    @keyframes shake {
+      0% { transform: translateX(0); }
+      20% { transform: translateX(-18px); }
+      40% { transform: translateX(18px); }
+      60% { transform: translateX(-10px); }
+      80% { transform: translateX(10px); }
+      100% { transform: translateX(0); }
+    }
+
+    .input-row {
+      display: flex;
+      gap: 14px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+
+    .input-row input {
+      flex: 1;
+      min-width: 180px;
+      padding: 18px 22px;
+      border-radius: 30px;
+      border: 1px solid #e2e8f0;
+      background: #ffffff;
+      font-size: 18px;
+      font-weight: 500;
+      color: #0f172a;
+      transition: 0.2s;
+      outline: none;
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.02);
+    }
+
+    .input-row input:focus {
+      border-color: #8b9eb0;
+      box-shadow: 0 0 0 4px rgba(30, 41, 59, 0.06);
+    }
+
+    .input-row input::placeholder {
+      color: #b9c7da;
+      font-weight: 400;
+      font-size: 16px;
+    }
+
+    .action-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 16px 28px;
+      border-radius: 40px;
+      border: none;
+      background: #1e293b;
+      color: white;
+      font-weight: 600;
+      font-size: 16px;
+      cursor: pointer;
+      transition: 0.15s;
+      box-shadow: 0 6px 14px -6px rgba(0,0,0,0.2);
+      font-family: 'Inter', sans-serif;
+      letter-spacing: 0.3px;
+      white-space: nowrap;
+    }
+
+    .action-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+    }
+
+    .action-btn:hover {
+      background: #0f172a;
+      transform: scale(0.97);
+      box-shadow: 0 4px 10px -4px rgba(0,0,0,0.25);
+    }
+
+    .action-btn:active {
+      transform: scale(0.94);
+    }
+
+    .action-btn.secondary {
+      background: #eef2f6;
+      color: #1e293b;
+      box-shadow: inset 0 1px 2px rgba(255,255,255,0.8), 0 2px 8px rgba(0,0,0,0.02);
+    }
+
+    .action-btn.secondary:hover {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .action-btn.hint-btn {
+      background: #fef9c3;
+      color: #854d0e;
+      box-shadow: 0 2px 10px rgba(251, 191, 36, 0.15);
+    }
+    .action-btn.hint-btn:hover {
+      background: #fde68a;
+      color: #78350f;
+    }
+
+    .stats {
+      display: flex;
+      gap: 32px;
+      margin-top: 28px;
+      flex-wrap: wrap;
+      padding-top: 16px;
+      border-top: 1px solid rgba(203, 213, 225, 0.3);
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .stat-icon {
+      width: 36px;
+      height: 36px;
+      background: white;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 8px -4px rgba(0,0,0,0.02);
+      border: 1px solid #eef2f6;
+    }
+
+    .stat-icon svg {
+      width: 20px;
+      height: 20px;
+      stroke: #334155;
+      stroke-width: 1.8;
+      fill: none;
+    }
+
+    .stat-text {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #64748b;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+    }
+
+    .stat-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: #0f172a;
+      line-height: 1.2;
+      margin-top: 2px;
+    }
+
+    .accuracy-value {
+      font-size: 22px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    @media (max-width: 650px) {
+      .app-card { padding: 24px 16px 28px; }
+      .header { flex-direction: column; align-items: stretch; }
+      .mode-selector { width: 100%; justify-content: stretch; }
+      .mode-btn { flex: 1; justify-content: center; padding: 10px 6px; font-size: 14px; }
+      .header-controls { flex-wrap: wrap; justify-content: space-between; }
+      .timer-display { font-size: 20px; min-width: 60px; }
+      .word-display { font-size: 28px; }
+      .hint-key { font-size: 16px; padding: 2px 10px; }
+    }
+  </style>
+</head>
+<body>
+<div class="app-card" id="appCard">
+
+  <!-- 头部 -->
+  <header class="header">
+    <div class="logo-area">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24">
+          <rect x="2" y="6" width="20" height="12" rx="2" />
+          <path d="M6 10 L8 14 L12 10 L16 14 L18 10" />
+          <path d="M2 10 L6 10" />
+          <path d="M18 10 L22 10" />
+        </svg>
+      </div>
+      <div class="title">键盘打字<span>训练</span></div>
+    </div>
+    <div class="header-controls">
+      <div class="mode-selector" id="modeSelector">
+        <button class="mode-btn active" data-mode="keyboard">
+          <svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="1.5"/><path d="M6 10 L8 14 L12 10 L16 14 L18 10"/></svg>
+          键位
+        </button>
+        <button class="mode-btn" data-mode="chinese">
+          <svg viewBox="0 0 24 24"><path d="M4 12 L8 12 M16 12 L20 12 M12 4 L12 8 M12 16 L12 20 M6 6 L18 18 M18 6 L6 18"/><circle cx="12" cy="12" r="2.5"/></svg>
+          中文
+        </button>
+        <button class="mode-btn" data-mode="english">
+          <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="1.5"/><path d="M6 8 L18 8 M6 12 L18 12 M6 16 L18 16"/></svg>
+          英语
+        </button>
+      </div>
+      <button class="timer-btn" id="timerToggle">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span id="timerLabel">暂停</span>
+      </button>
+      <div class="timer-display" id="timerDisplay">00:00</div>
+    </div>
+  </header>
+
+  <!-- 练习区 -->
+  <section class="practice-area">
+    <div class="display-text" id="displayText">
+      <div class="word-display" id="wordDisplay">开始打字练习</div>
+      <div class="hint-row" id="hintRow"></div>
+      <div class="confetti-container" id="confettiContainer"></div>
+    </div>
+
+    <div class="input-row">
+      <input type="text" id="userInput" placeholder="输入内容..." autofocus>
+      <button class="action-btn" id="checkBtn">
+        <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+        检查
+      </button>
+      <button class="action-btn secondary" id="nextBtn">
+        <svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"/></svg>
+        下一词
+      </button>
+      <button class="action-btn hint-btn" id="hintBtn">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>
+        提示
+      </button>
+    </div>
+
+    <div class="stats">
+      <div class="stat-item">
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+        <div class="stat-text"><span class="stat-label">正确</span><span class="stat-value" id="correctCount">0</span></div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+        <div class="stat-text"><span class="stat-label">错误</span><span class="stat-value" id="errorCount">0</span></div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8 L12 12 L14 14"/></svg></div>
+        <div class="stat-text"><span class="stat-label">正确率</span><span class="accuracy-value" id="accuracyDisplay">0%</span></div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-icon"><svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="8" y1="12" x2="16" y2="12"/></svg></div>
+        <div class="stat-text"><span class="stat-label">进度</span><span class="stat-value" id="progressCount">0/0</span></div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<script>
+  (function() {
+  // ----- 词库 -----
+   const modeMap = {
+      keyboard: { 
+        words: ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p', 'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l', 'z', 'x', 'c', 'v', 'b', 'n', 'm', '`', '~', '!', '@', '#', '$', '%', '^', '&', '*', '(', ')', '-', '_', '=', '+', '[', ']', '{', '}', '\\', '|', ';', ':', '\'', '"', ',', '<', '.', '>', '/', '?'],
+        label: '键位'
+      },
+      chinese: {
+        words: ['持之以恒', '专心致志', '日积月累', '厚积薄发', '脚踏实地', '精益求精', '循序渐进', '温故知新', '博览群书', '勤学好问', '废寝忘食', '孜孜不倦', '学而不厌', '悬梁刺股', '凿壁偷光', '囊萤映雪', '闻鸡起舞', '发奋图强', '锲而不舍', '水滴石穿', '聚沙成塔', '集腋成裘', '博观约取', '厚积薄发', '知行合一', '求真务实', '深思熟虑', '举一反三', '触类旁通', '融会贯通', '博学多思', '敏而好学', '不耻下问', '业精于勤', '行成于思', '乘风破浪', '志存高远', '胸怀大志', '励精图治', '破釜沉舟', '百折不挠', '坚韧不拔', '愈挫愈勇', '迎难而上', '披荆斩棘', '勇毅前行', '乘风破浪', '海纳百川', '虚怀若谷', '戒骄戒躁', '宠辱不惊', '宁静致远', '淡泊明志', '厚重大气', '光明磊落', '堂堂正正', '诚实守信', '一诺千金', '言而有信', '推心置腹', '与人为善', '助人为乐', '雪中送炭', '成人之美', '宽宏大量', '厚德载物', '克己奉公', '自强不息', '自力更生', '艰苦奋斗', '开源节流', '未雨绸缪', '居安思危', '防微杜渐', '三思而行', '谋定后动', '审时度势', '高瞻远瞩', '远见卓识', '明察秋毫', '洞若观火', '当机立断', '雷厉风行', '真抓实干', '脚踏实地', '稳扎稳打', '兢兢业业', '恪尽职守', '任劳任怨', '无私奉献', '默默无闻', '披星戴月', '栉风沐雨', '春华秋实', '天道酬勤', '水到渠成', '瓜熟蒂落', '苦尽甘来', '苦尽甜来', '否极泰来', '峰回路转', '柳暗花明', '拨云见日', '豁然开朗', '大有可为', '前程似锦', '鹏程万里', '大展宏图', '蒸蒸日上', '欣欣向荣', '日新月异', '万象更新', '风华正茂', '意气风发', '朝气蓬勃', '斗志昂扬', '神采飞扬', '厚积沉潜', '深耕细作', '守正创新', '吐故纳新', '革故鼎新', '继往开来', '承前启后', '博采众长', '取长补短', '扬长避短', '择善而从', '见贤思齐', '反躬自省', '三省吾身', '知过必改', '闻过则喜', '严于律己', '宽以待人', '克勤克俭', '俭以养德', '宁静平和', '心无旁骛', '全神贯注', '屏气凝神', '聚精会神', '心专石穿', '日有所进', '跬步千里', '久久为功', '笃行不怠', '踔厉奋发', '笃行致远', '行稳致远', '道阻且长', '行则将至', '功不唐捐', '日拱一卒', '循序渐进', '深耕笃学', '静水流深', '大智若愚', '大巧若拙', '海阔天空', '山高水长', '清风明月', '向阳而生', '向阳而行', '砥砺前行', '淬炼成钢', '百炼成钢', '金石为开', '矢志不渝', '初心不改', '矢志不移', '志坚行苦', '卧薪尝胆', '枕戈待旦', '厚养本心', '守拙归真', '返璞归真', '澄心清神', '静观默察', '细照笃行', '积微成著', '积少成多', '日就月将', '精进不休', '好学深思', '格物致知', '博学笃行', '敦本务实', '抱朴守拙', '善始善终', '慎终如始', '全力以赴', '分秒必争', '只争朝夕', '时不我待', '莫负韶华', '不负光阴', '追风赶月', '踏浪而行', '登高望远', '厚土深耕'],
+        label: '中文'
+      },
+      english: {
+        words: ['learn', 'study', 'read', 'write', 'think', 'grow', 'hope', 'dream', 'try', 'work', 'focus', 'effort', 'progress', 'practice', 'persist', 'believe', 'achieve', 'plan', 'act', 'create', 'explore', 'discover', 'improve', 'develop', 'challenge', 'courage', 'patience', 'wisdom', 'knowledge', 'skill', 'habit', 'goal', 'action', 'time', 'energy', 'confidence', 'strength', 'mind', 'vision', 'success', 'failure', 'lesson', 'change', 'adapt', 'overcome', 'struggle', 'fight', 'advance', 'move', 'step', 'journey', 'road', 'way', 'path', 'future', 'today', 'tomorrow', 'moment', 'opportunity', 'choice', 'decision', 'responsibility', 'honesty', 'kindness', 'respect', 'gratitude', 'calm', 'peace', 'balance', 'health', 'vitality', 'curiosity', 'imagination', 'creativity', 'observation', 'reflection', 'review', 'repeat', 'master', 'train', 'exercise', 'speed', 'accuracy', 'concentration', 'preparation', 'perseverance', 'determination', 'ambition', 'passion', 'motivation', 'inspiration', 'support', 'friendship', 'cooperate', 'share', 'help', 'listen', 'communicate', 'understand', 'forgive', 'grow slowly', 'keep trying', 'never give up', 'stay focused', 'take action', 'make progress', 'set your goal', 'use your time well', 'learn every day', 'think deeply', 'practice more', 'face difficulty bravely', 'believe in yourself', 'small steps matter', 'hard work pays off', 'stay patient', 'keep humble', 'look forward', 'seize the moment', 'build good habits', 'find your way', 'chase your dream', 'enjoy the journey', 'learn from mistakes', 'be responsible', 'stay positive', 'open your mind', 'explore new things', 'improve little by little', 'trust your effort', 'time waits for no one', 'every day counts', 'focus on what you can do', 'one step at a time', 'nothing is impossible', 'consistency beats talent', 'stay calm under pressure', 'keep moving forward', 'do your best', 'plan before you start', 'review what you learned', 'challenge yourself often', 'build your skills', 'gain more knowledge', 'control your mind', 'make wise choices', 'value every minute', 'hold on to hope', 'courage comes from trying', 'progress takes time', 'great things take time', 'start right now', 'no pain no gain', 'focus on growth', 'be true to yourself', 'learn to wait', 'keep your promise', 'give thanks each day', 'help people around you', 'cooperate with others', 'listen carefully', 'think before you speak', 'forgive and move on', 'keep your spirit high', 'protect your health', 'feed your curiosity', 'use your imagination', 'observe the world', 'reflect on your day', 'repeat until perfect', 'train your body and mind', 'speed comes from practice', 'accuracy comes from care', 'good preparation brings success', 'perseverance wins the day', 'determination lights your road', 'passion drives you far', 'motivation fuels your journey', 'inspiration comes from life', 'true friendship supports growth', 'sharing brings joy', 'help others gain happiness', 'communication solves trouble', 'understanding builds trust', 'forgiveness frees your heart'],
+        label: '英语'
+      }
+    };
+
+    // DOM
+    const modeBtns = document.querySelectorAll('.mode-btn');
+    const wordDisplay = document.getElementById('wordDisplay');
+    const hintRow = document.getElementById('hintRow');
+    const userInput = document.getElementById('userInput');
+    const checkBtn = document.getElementById('checkBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const hintBtn = document.getElementById('hintBtn');
+    const correctSpan = document.getElementById('correctCount');
+    const errorSpan = document.getElementById('errorCount');
+    const accuracySpan = document.getElementById('accuracyDisplay');
+    const progressSpan = document.getElementById('progressCount');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const timerToggle = document.getElementById('timerToggle');
+    const timerLabel = document.getElementById('timerLabel');
+    const displayTextDiv = document.getElementById('displayText');
+    const confettiContainer = document.getElementById('confettiContainer');
+
+    // 状态
+    let currentMode = 'keyboard';
+    let wordList = [];
+    let currentWord = '';
+    let correctTotal = 0;
+    let errorTotal = 0;
+    let totalAttempts = 0;
+    let timerSeconds = 0;
+    let timerInterval = null;
+    let isTimerRunning = true;
+    let isProcessing = false;
+    let showHint = false;
+
+    // 工具
+    function shuffleArray(arr) {
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function getShuffledWords(mode) {
+      const base = [...modeMap[mode].words];
+      return shuffleArray(base);
+    }
+
+    function updateStats() {
+      correctSpan.textContent = correctTotal;
+      errorSpan.textContent = errorTotal;
+      const total = correctTotal + errorTotal;
+      const acc = total === 0 ? 0 : Math.round((correctTotal / total) * 100);
+      accuracySpan.textContent = acc + '%';
+      progressSpan.textContent = `${totalAttempts}/${wordList.length}`;
+    }
+
+    // 渲染单词 + 提示
+    function renderWordWithHint(word, inputValue) {
+      if (!word) {
+        wordDisplay.textContent = '🎯 准备开始';
+        hintRow.innerHTML = '';
+        return;
+      }
+
+      // 构建带颜色的单词
+      const chars = word.split('');
+      const inputChars = inputValue ? inputValue.split('') : [];
+      let html = '';
+      for (let i = 0; i < chars.length; i++) {
+        const ch = chars[i];
+        let cls = 'char-pending';
+        if (i < inputChars.length) {
+          if (inputChars[i] === ch) cls = 'char-correct';
+          else cls = 'char-wrong';
+        }
+        html += `<span class="${cls}">${ch}</span>`;
+      }
+      wordDisplay.innerHTML = html;
+
+      // 更新提示行 (黄色按键)
+      if (showHint && currentWord) {
+        const hintChars = currentWord.split('');
+        let hintHtml = '';
+        const typedLen = inputValue ? inputValue.length : 0;
+        hintChars.forEach((ch, idx) => {
+          let cls = 'hint-key';
+          if (idx < typedLen) cls += ' dim';
+          if (idx === typedLen) cls += ' active-hint';
+          hintHtml += `<span class="${cls}">${ch}</span>`;
+        });
+        hintRow.innerHTML = hintHtml;
+      } else {
+        hintRow.innerHTML = '';
+      }
+    }
+
+    // 加载随机词
+    function loadWord() {
+      if (wordList.length === 0 || totalAttempts >= wordList.length) {
+        if (totalAttempts >= wordList.length && wordList.length > 0) {
+          wordDisplay.textContent = '✅ 已完成所有词汇！';
+          hintRow.innerHTML = '';
+          currentWord = '';
+          userInput.value = '';
+          return;
+        }
+        wordDisplay.textContent = '🎯 请添加词汇';
+        hintRow.innerHTML = '';
+        currentWord = '';
+        userInput.value = '';
+        return;
+      }
+      currentWord = wordList[totalAttempts];
+      userInput.value = '';
+      renderWordWithHint(currentWord, '');
+      userInput.focus();
+      confettiContainer.innerHTML = '';
+      isProcessing = false;
+    }
+
+    // 实时监测输入
+    function onInputChange() {
+      if (isProcessing) return;
+      if (!currentWord) return;
+      const input = userInput.value;
+      renderWordWithHint(currentWord, input);
+    }
+
+    // 礼花
+    function fireConfetti() {
+      const colors = ['#f97316', '#3b82f6', '#8b5cf6', '#ec4899', '#22c55e', '#eab308', '#ef4444'];
+      const container = confettiContainer;
+      container.innerHTML = '';
+      for (let i = 0; i < 40; i++) {
+        const piece = document.createElement('div');
+        piece.className = 'confetti-piece';
+        const color = colors[Math.floor(Math.random() * colors.length)];
+        piece.style.backgroundColor = color;
+        piece.style.left = Math.random() * 100 + '%';
+        piece.style.top = Math.random() * 30 + '%';
+        piece.style.width = (6 + Math.random() * 10) + 'px';
+        piece.style.height = (6 + Math.random() * 10) + 'px';
+        piece.style.borderRadius = Math.random() > 0.5 ? '50%' : '2px';
+        piece.style.animationDuration = (0.7 + Math.random() * 0.6) + 's';
+        piece.style.animationDelay = (Math.random() * 0.3) + 's';
+        container.appendChild(piece);
+      }
+      setTimeout(() => { container.innerHTML = ''; }, 1500);
+    }
+
+    // 检查
+    function checkInput() {
+      if (isProcessing) return;
+      const input = userInput.value.trim();
+      if (!currentWord || totalAttempts >= wordList.length) {
+        if (totalAttempts >= wordList.length && wordList.length > 0) {
+          resetPractice();
+        }
+        return;
+      }
+      if (input === '') return;
+
+      isProcessing = true;
+      const isCorrect = input.toLowerCase() === currentWord.toLowerCase();
+      
+      if (isCorrect) {
+        correctTotal++;
+        fireConfetti();
+        // 变绿渐隐（临时效果）
+        wordDisplay.classList.add('word-correct');
+        setTimeout(() => {
+          wordDisplay.classList.remove('word-correct');
+          totalAttempts++;
+          updateStats();
+          loadWord();
+          isProcessing = false;
+        }, 500);
+      } else {
+        errorTotal++;
+        wordDisplay.classList.add('word-wrong');
+        setTimeout(() => {
+          wordDisplay.classList.remove('word-wrong');
+          totalAttempts++;
+          updateStats();
+          loadWord();
+          isProcessing = false;
+        }, 450);
+      }
+      updateStats();
+    }
+
+    function nextWord() {
+      if (isProcessing) return;
+      if (totalAttempts < wordList.length) {
+        totalAttempts++;
+        updateStats();
+        loadWord();
+      } else {
+        resetPractice();
+      }
+    }
+
+    function toggleHint() {
+      showHint = !showHint;
+      hintBtn.classList.toggle('active', showHint);
+      if (showHint && currentWord) {
+        renderWordWithHint(currentWord, userInput.value);
+      } else {
+        hintRow.innerHTML = '';
+      }
+    }
+
+    // 切换模式
+    function setMode(mode) {
+      if (mode === currentMode) return;
+      currentMode = mode;
+      wordList = getShuffledWords(mode);
+      correctTotal = 0;
+      errorTotal = 0;
+      totalAttempts = 0;
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        isTimerRunning = false;
+        timerLabel.textContent = '开始';
+      }
+      timerSeconds = 0;
+      updateTimerDisplay();
+      updateStats();
+      showHint = false;
+      hintBtn.classList.remove('active');
+      hintRow.innerHTML = '';
+      loadWord();
+      startTimer();
+      modeBtns.forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.mode === mode);
+      });
+    }
+
+    // 重置
+    function resetPractice() {
+      wordList = getShuffledWords(currentMode);
+      correctTotal = 0;
+      errorTotal = 0;
+      totalAttempts = 0;
+      if (timerInterval) {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        isTimerRunning = false;
+        timerLabel.textContent = '开始';
+      }
+      timerSeconds = 0;
+      updateTimerDisplay();
+      updateStats();
+      showHint = false;
+      hintBtn.classList.remove('active');
+      hintRow.innerHTML = '';
+      loadWord();
+      startTimer();
+    }
+
+    // 计时器
+    function updateTimerDisplay() {
+      const mins = String(Math.floor(timerSeconds / 60)).padStart(2, '0');
+      const secs = String(timerSeconds % 60).padStart(2, '0');
+      timerDisplay.textContent = `${mins}:${secs}`;
+    }
+
+    function startTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      isTimerRunning = true;
+      timerLabel.textContent = '暂停';
+      timerInterval = setInterval(() => {
+        timerSeconds++;
+        updateTimerDisplay();
+      }, 1000);
+    }
+
+    function pauseTimer() {
+      if (timerInterval) clearInterval(timerInterval);
+      isTimerRunning = false;
+      timerLabel.textContent = '继续';
+    }
+
+    function toggleTimer() {
+      if (isTimerRunning) pauseTimer();
+      else startTimer();
+    }
+
+    // 事件绑定
+    modeBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const mode = btn.dataset.mode;
+        if (mode === currentMode) return;
+        setMode(mode);
+      });
+    });
+
+    checkBtn.addEventListener('click', checkInput);
+    nextBtn.addEventListener('click', nextWord);
+    hintBtn.addEventListener('click', toggleHint);
+    timerToggle.addEventListener('click', toggleTimer);
+    userInput.addEventListener('input', onInputChange);
+
+    userInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        checkBtn.click();
+      }
+    });
+
+    document.addEventListener('click', () => userInput.focus());
+
+    // 初始化
+    wordList = getShuffledWords('keyboard');
+    totalAttempts = 0;
+    correctTotal = 0;
+    errorTotal = 0;
+    updateStats();
+    loadWord();
+    startTimer();
+  })();
+</script>
+</body>
+</html>
